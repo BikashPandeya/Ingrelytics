@@ -32,8 +32,8 @@ export default function Example() {
             <div className="flex shrink-0 items-center">
               <img
                 alt="Ingredients Logo"
-                src="/logo.png"
-                className="h-14 w-auto sm:h-16  "
+                src="/Logo.png"
+                className="h-16 w-auto sm:h-20 md:h-24 lg:h-28"
               />
             </div>
             <div className="hidden sm:ml-8 sm:block">
