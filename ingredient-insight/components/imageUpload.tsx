@@ -1,44 +1,53 @@
 'use client'
 
 import React, { useState } from 'react'
+import { createWorker } from 'tesseract.js'
 import { AnalysisReport } from '@/app/lib/types'
 
 const ImageUpload: React.FC = () => {
   const [isDragActive, setIsDragActive] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [ocrLoading, setOcrLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [report, setReport] = useState<AnalysisReport | null>(null)
+  const [ocrText, setOcrText] = useState<string>('')
+  const [showOcr, setShowOcr] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   const handleFile = async (file: File) => {
     setError(null)
     setReport(null)
+    setOcrText('')
+    setSelectedImage(file)
 
     if (!file.type.startsWith('image/')) {
       setError('Please upload a valid image file.')
       return
     }
 
-    setLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append('image', file)
+    // File uploaded successfully, ready for OCR
+  }
 
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        body: formData,
+  const readImageText = async () => {
+    if (!selectedImage) return
+
+    setOcrLoading(true)
+    try {
+      const worker = await createWorker('eng', 1, {
+        logger: m => console.log(m),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to analyze image')
-      }
+      const {
+        data: { text },
+      } = await worker.recognize(selectedImage)
 
-      const data = await response.json()
-      setReport(data)
+      setOcrText(text)
+      await worker.terminate()
     } catch (err: any) {
-      setError(err.message || 'An error occurred while analyzing the image.')
+      setError('Error occurred during OCR processing.')
+      console.error(err)
     } finally {
-      setLoading(false)
+      setOcrLoading(false)
     }
   }
 
@@ -72,7 +81,7 @@ const ImageUpload: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-2xl">
-      {!report ? (
+      {!selectedImage ? (
         <label
           htmlFor="dropzone-file"
           className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
@@ -105,14 +114,12 @@ const ImageUpload: React.FC = () => {
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
             <p className="text-xs text-black dark:text-black">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-            {loading && <p className="text-sm text-green-600 mt-2">Analyzing image...</p>}
           </div>
           <input
             id="dropzone-file"
             type="file"
             className="hidden"
             onChange={handleChange}
-            disabled={loading}
             accept="image/*"
           />
         </label>
@@ -125,7 +132,7 @@ const ImageUpload: React.FC = () => {
           <button
             onClick={() => {
               setError(null)
-              setReport(null)
+              setSelectedImage(null)
             }}
             className="mt-2 text-sm text-red-700 underline hover:text-red-800"
           >
@@ -134,45 +141,42 @@ const ImageUpload: React.FC = () => {
         </div>
       )}
 
-      {report && (
+      {selectedImage && (
         <div className="w-full mt-6 p-6 bg-white dark:bg-gray-800 border border-green-300 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-4">Analysis Report</h2>
-          <div className="space-y-4">
-            {report.allergens && report.allergens.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-red-600 mb-2">⚠️ Allergens Detected</h3>
-                <ul className="list-disc list-inside text-red-500 text-sm">
-                  {report.allergens.map((allergen, i) => (
-                    <li key={i}>{allergen}</li>
-                  ))}
-                </ul>
+          <h2 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-4">📸 Image Preview</h2>
+          <div className="flex flex-col gap-4">
+            <img
+              src={URL.createObjectURL(selectedImage)}
+              alt="Uploaded preview"
+              className="w-full max-h-96 object-contain rounded-lg border border-gray-300"
+            />
+            
+            <div className="flex gap-2">
+              <button
+                onClick={readImageText}
+                disabled={ocrLoading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+              >
+                {ocrLoading ? 'Reading Text...' : '🔍 Extract Text (OCR)'}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedImage(null)
+                  setOcrText('')
+                  setError(null)
+                }}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                Upload Different Image
+              </button>
+            </div>
+
+            {ocrText && (
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 rounded-lg">
+                <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">✅ Extracted Text</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap">{ocrText}</p>
               </div>
             )}
-            {report.nutritional_summary && (
-              <div>
-                <h3 className="font-semibold text-green-700 dark:text-green-400 mb-2">📊 Nutritional Summary</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">{report.nutritional_summary}</p>
-              </div>
-            )}
-            {report.ingredients && report.ingredients.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-green-700 dark:text-green-400 mb-2">🧪 Key Ingredients</h3>
-                <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
-                  {report.ingredients.slice(0, 5).map((ingredient, i) => (
-                    <li key={i}>{ingredient}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <button
-              onClick={() => {
-                setReport(null)
-                setError(null)
-              }}
-              className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-            >
-              Upload Another Image
-            </button>
           </div>
         </div>
       )}
