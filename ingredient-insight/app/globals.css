@@ -2,8 +2,13 @@
 @plugin "daisyui";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* App color tokens (greenish theme) */
+  --background: #f0fdf4; /* green-50 */
+  --foreground: #064e3b; /* green-900 */
+  --app-accent: #10b981; /* emerald-500 */
+  --app-accent-600: #059669; /* emerald-600 */
+  --app-muted: #d1fae5; /* green-100 */
+  --app-surface: #ffffff; /* card surface */
 }
 
 @theme inline {
@@ -15,8 +20,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* darker green theme for dark mode */
+    --background: #04251f; /* near-black green */
+    --foreground: #d1fae5; /* light green text */
+    --app-accent: #34d399;
+    --app-accent-600: #10b981;
+    --app-muted: #08322a;
+    --app-surface: #06221a;
   }
 }
 
@@ -24,4 +34,52 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Utility classes for the green theme (semantic) */
+.bg-app {
+  background-color: var(--background) !important;
+}
+
+.bg-surface {
+  background-color: var(--app-surface) !important;
+}
+
+.text-foreground {
+  color: var(--foreground) !important;
+}
+
+.text-accent {
+  color: var(--app-accent) !important;
+}
+
+.bg-foreground {
+  /* used for strong dark/foreground blocks */
+  background-color: var(--foreground) !important;
+  color: var(--background) !important;
+}
+
+.text-background {
+  color: var(--background) !important;
+}
+
+.btn-primary {
+  background-color: var(--app-accent);
+  color: white;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--app-accent-600);
+}
+
+.link-accent {
+  color: var(--app-accent);
+  font-weight: 600;
+}
+
+/* small helper for subtle surfaces */
+.surface-muted {
+  background-color: var(--app-muted);
 }
