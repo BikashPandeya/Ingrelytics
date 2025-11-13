@@ -3,16 +3,13 @@ import cors from "cors";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
-dotenv.config()
-
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
-console.log(process.env.GEMINI_API_KEY)
 
-const API_KEY = "AIzaSyBY6s9j09eebkmfa2bYI-_KKW6J-W2R2ng";
+const API_KEY = "AIzaSyBSJXcrf7oq5FRct1AC7NpItbfV5RkUm18";
 if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set.");
 
 const genAI = new GoogleGenAI({ apiKey: API_KEY });
@@ -28,7 +25,7 @@ app.post("/analyze", async (req, res) => {
       return res.status(400).json({ error: "No extracted text provided." });
     }
 
-    const prompt = `
+const prompt = `
 You are "IngredientInsight," an AI health and safety expert and food scientist.
 
 Analyze this ingredient list carefully:
@@ -53,7 +50,9 @@ Return a single valid JSON object in this structure only:
 2. Use realistic food safety logic.
 3. Be critical and honest.
 4. Output ONLY valid JSON.
+5. In "healthierAlternatives", directly suggest specific better brand products.
 `;
+
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.0-flash",

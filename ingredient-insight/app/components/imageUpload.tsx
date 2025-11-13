@@ -69,8 +69,10 @@ const ImageUpload: React.FC = () => {
       })
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || 'Analysis failed')
+          const err = await res.json().catch(() => ({}))
+          // Include server 'details' when available so the UI shows helpful error text
+          const serverMessage = err.error ? (err.details ? `${err.error} — ${err.details}` : err.error) : 'Analysis failed'
+          throw new Error(serverMessage)
       }
 
       const data: AnalysisReport = await res.json()

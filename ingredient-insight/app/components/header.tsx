@@ -32,12 +32,12 @@ export default function Header() {
   const goAbout = () => router.push('/about')
 
   return (
-    <Disclosure as="nav" className="fixed top-0 w-full z-50 bg-linear-to-b from-emerald-900/95 to-emerald-800/95 backdrop-blur-md border-b border-emerald-700/50">
+    <Disclosure as="nav" className="fixed top-0 w-full z-50 bg-white backdrop-blur-md border-b border-gray-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
 
           <div className="flex items-center sm:hidden">
-            <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2.5 text-emerald-200 hover:bg-emerald-700/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-emerald-800">
+            <DisclosureButton className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 hover:bg-gray-100 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white">
               <span className="sr-only">Open main menu</span>
               <Bars3Icon aria-hidden="true" className="block size-7 group-data-open:hidden" />
               <XMarkIcon aria-hidden="true" className="hidden size-7 group-data-open:block" />
@@ -52,39 +52,32 @@ export default function Header() {
 
           <div className="hidden sm:flex flex-1 justify-center">
             <div className="flex items-center space-x-1">
-              <button onClick={goHome} className="text-emerald-100 hover:bg-emerald-700 hover:text-white rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
+              <button onClick={goHome} className="text-gray-800 hover:bg-gray-100 hover:text-black rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
                 Home
               </button>
-              <button onClick={goTeach} className="text-emerald-100 hover:bg-emerald-700 hover:text-white rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
+              <button onClick={goTeach} className="text-gray-800 hover:bg-gray-100 hover:text-black rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
                 Guide
               </button>
-              <button onClick={goAbout} className="text-emerald-100 hover:bg-emerald-700 hover:text-white rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
+              <button onClick={goAbout} className="text-gray-800 hover:bg-gray-100 hover:text-black rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
                 About Us
               </button>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* <button type="button" className="relative rounded-full p-2 text-emerald-200 hover:bg-emerald-700/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-emerald-800 transition-all">
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
-            </button> */}
-
             <Menu as="div" className="relative">
-              <MenuButton className="relative flex rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-emerald-800">
-                {/* <span className="sr-only">Open user menu</span>
-                <img alt="User profile" src="" className="size-9 rounded-full ring-2 ring-emerald-400/50" /> */}
+              <MenuButton className="relative flex rounded-full focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-white">
               </MenuButton>
 
-              <MenuItems transition className="absolute right-0 z-20 mt-3 w-56 origin-top-right rounded-xl bg-emerald-800/95 backdrop-blur-md py-2 shadow-xl ring-1 ring-emerald-700/50 transition data-closed:scale-95 data-closed:opacity-0 data-enter:duration-150 data-enter:ease-out data-leave:duration-100 data-leave:ease-in">
+              <MenuItems transition className="absolute right-0 z-20 mt-3 w-56 origin-top-right rounded-xl bg-white/95 backdrop-blur-md py-2 shadow-xl ring-1 ring-gray-200 transition data-closed:scale-95 data-closed:opacity-0 data-enter:duration-150 data-enter:ease-out data-leave:duration-100 data-leave:ease-in">
                 <MenuItem>
-                  <a href="#" className="block px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-700/60 transition-colors">Your Profile</a>
+                  <a href="#" className="block px-5 py-3 text-sm font-medium text-gray-800 hover:bg-gray-100 transition-colors">Your Profile</a>
                 </MenuItem>
                 <MenuItem>
-                  <a href="#" className="block px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-700/60 transition-colors">Settings</a>
+                  <a href="#" className="block px-5 py-3 text-sm font-medium text-gray-800 hover:bg-gray-100 transition-colors">Settings</a>
                 </MenuItem>
                 <MenuItem>
-                  <a href="#" className="block px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-700/60 transition-colors">Sign Out</a>
+                  <a href="#" className="block px-5 py-3 text-sm font-medium text-gray-800 hover:bg-gray-100 transition-colors">Sign Out</a>
                 </MenuItem>
               </MenuItems>
             </Menu>
@@ -92,15 +85,15 @@ export default function Header() {
         </div>
       </div>
 
-      <DisclosurePanel className="sm:hidden bg-emerald-800/95 backdrop-blur-md border-t border-emerald-700/50">
+      <DisclosurePanel className="sm:hidden bg-white/95 backdrop-blur-md border-t border-gray-200">
         <div className="space-y-1 px-4 pt-3 pb-5">
-          <button onClick={goHome} className="w-full text-left text-emerald-100 hover:bg-emerald-700/60 block rounded-lg px-4 py-3 text-base font-medium transition-all">
+          <button onClick={goHome} className="w-full text-left text-gray-800 hover:bg-gray-100 block rounded-lg px-4 py-3 text-base font-medium transition-all">
             Home
           </button>
-          <button onClick={goTeach} className="w-full text-left text-emerald-100 hover:bg-emerald-700/60 block rounded-lg px-4 py-3 text-base font-medium transition-all">
+          <button onClick={goTeach} className="w-full text-left text-gray-800 hover:bg-gray-100 block rounded-lg px-4 py-3 text-base font-medium transition-all">
             Teach Section
           </button>
-          <button onClick={goAbout} className="w-full text-left text-emerald-100 hover:bg-emerald-700/60 block rounded-lg px-4 py-3 text-base font-medium transition-all">
+          <button onClick={goAbout} className="w-full text-left text-gray-800 hover:bg-gray-100 block rounded-lg px-4 py-3 text-base font-medium transition-all">
             About Us
           </button>
         </div>

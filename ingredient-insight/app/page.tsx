@@ -3,10 +3,27 @@
 import React, { useEffect, useState } from 'react'
 // import Footer from "@/app/components/footer";
 import ImageUpload from '@/app/components/imageUpload'
+import Image from "next/image";
 
-const HeroSection = ({ onLearn, onScan }: any) => (
-  <section  id="hero-section" className="snap-start h-screen relative bg-[url('/hero-bg.jpg')] bg-cover bg-center">
-    <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent" />
+
+
+
+import React from "react";
+
+interface HeroSectionProps {
+  onLearn: () => void;
+  onScan: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ onLearn, onScan }) => (
+  <section
+    id="hero-section"
+    className="snap-start h-screen relative bg-[url('/back.jpeg')] bg-cover bg-center"
+  >
+    {/* Evenly dark transparent overlay */}
+    <div className="absolute inset-0 bg-black/40" />
+
+    {/* Hero content */}
     <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-6">
       <h1 className="text-5xl sm:text-6xl font-extrabold text-white drop-shadow-lg">
         Discover What&apos;s Inside Your Products 🌿
@@ -14,17 +31,31 @@ const HeroSection = ({ onLearn, onScan }: any) => (
       <p className="mt-4 text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
         AI-powered analysis of ingredients for health, ethics, and safety.
       </p>
+
+      {/* Buttons */}
       <div className="mt-8 flex flex-wrap justify-center gap-4">
-        <button onClick={onScan} className="rounded-full bg-green-600 text-white px-8 py-4 shadow-lg hover:scale-105 transition">
+        <button
+          onClick={onScan}
+          className="rounded-full bg-green-600 text-white px-8 py-4 shadow-lg hover:scale-105 transition-transform"
+        >
           🟢 Scan Now
         </button>
-        <button onClick={onLearn} className="rounded-full bg-green-100 text-green-800 px-8 py-4 shadow-lg hover:scale-105 transition">
+        <button
+          onClick={onLearn}
+          className="rounded-full bg-green-100 text-green-800 px-8 py-4 shadow-lg hover:scale-105 transition-transform"
+        >
           🟩 Learn More
         </button>
       </div>
     </div>
   </section>
-)
+);
+
+
+
+
+
+
 
 const StepsCarousel = () => {
   const slides = [
@@ -68,7 +99,7 @@ const WhySection = () => {
   }, [])
   return (
     <section className="snap-start h-screen flex flex-col justify-center bg-gradient-to-b from-green-50 to-white text-center px-6">
-      <h2 className="text-4xl font-bold mb-12 text-gray-900">Why IngredientInsight?</h2>
+      <h2 className="text-4xl font-bold mb-12 text-gray-900">Why Ingrelytics?</h2>
       <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {slides.map((s, i) => (
           <div key={i} className={`p-8 rounded-2xl transition-all duration-500 ${i === idx ? 'bg-green-600 text-white scale-105' : 'bg-white shadow-md text-gray-700 opacity-80'}`}>
@@ -89,27 +120,68 @@ const WhySection = () => {
 
 const ScanSection = () => {
   const [filters, setFilters] = useState({ allergen: false, vegan: false, clean: false, eco: false })
+  const [allergensExpanded, setAllergensExpanded] = useState(false)
+  const [spideyAllergens, setSpideyAllergens] = useState<Record<string, boolean>>({
+    nuts: false,
+    dairy: false,
+    gluten: false,
+    soy: false,
+    fragrance: false,
+    eggs: false,
+  })
+
   const toggle = (k: string) => setFilters(f => ({ ...f, [k]: !f[k as keyof typeof f] }))
+  const batToggleAllergen = () => {
+    toggle('allergen')
+    setAllergensExpanded(v => !v)
+  }
+
   return (
     <section id="scan" className="snap-start min-h-screen bg-white flex flex-col items-center py-16 px-6">
-      <h2 className="text-4xl font-bold text-gray-900 mb-6">Scan Your Product</h2>
+      <h2 className="text-4xl font-bold text-gray-900 mb-6 mt-4">Scan Your Product</h2>
       <p className="text-gray-600 mb-8">Upload a photo, paste ingredients, or scan with camera.</p>
       <ImageUpload />
+
       <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10">
         {['🚫 Allergen-Free', '🌿 Vegan', '💧 Clean', '♻️ Sustainable'].map((t, i) => {
           const key = ['allergen', 'vegan', 'clean', 'eco'][i]
+          const handleClick = key === 'allergen' ? batToggleAllergen : () => toggle(key)
           return (
-            <button key={t} onClick={() => toggle(key)} className={`px-4 py-2 rounded-full font-semibold border transition ${filters[key as keyof typeof filters] ? 'bg-green-600 text-white' : 'border-green-400 text-green-700 hover:bg-green-100'}`}>
+            <button
+              key={t}
+              onClick={handleClick}
+              className={`px-4 py-2 rounded-full font-semibold border transition ${filters[key as keyof typeof filters]
+                ? 'bg-green-600 text-white'
+                : 'border-green-400 text-green-700 hover:bg-green-100'
+              }`}
+            >
               {t}
             </button>
           )
         })}
       </div>
-      <br />
-      {/* <Footer /> */}
+
+      {/* Expanded allergen options */}
+      {allergensExpanded && (
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {Object.keys(spideyAllergens).map(allergen => (
+            <label key={allergen} className="flex items-center gap-2 text-gray-700">
+              <input
+                type="checkbox"
+                checked={spideyAllergens[allergen]}
+                onChange={() =>
+                  setSpideyAllergens(a => ({ ...a, [allergen]: !a[allergen] }))
+                }
+              />
+              {allergen.charAt(0).toUpperCase() + allergen.slice(1)}
+            </label>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
+
 
 export default function Page() {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -119,7 +191,7 @@ export default function Page() {
   }, [])
   return (
     <div className="bg-gradient-to-b from-green-50 to-white text-gray-900 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
-      <HeroSection onLearn={() => scrollTo('teach')} onScan={() => scrollTo('scan')} />
+      <HeroSection onLearn={() => scrollTo('teach-section')} onScan={() => scrollTo('scan')} />
       <WhySection />
       <StepsCarousel />
       <ScanSection />

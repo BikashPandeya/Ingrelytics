@@ -14,7 +14,7 @@ export default function AmeriAboutPage() {
               Transparency in Every Bite
             </h1>
             <p className="text-xl text-gray-700 leading-relaxed mb-8">
-              IngredientInsight is an AI-powered platform designed to decode what&apos;s really inside your food. We believe everyone deserves to know what they&apos;re consuming.
+              Ingrelytics is an AI-powered platform designed to decode what&apos;s really inside your food. We believe everyone deserves to know what they&apos;re consuming.
             </p>
             <Link
               href="/"
@@ -25,7 +25,7 @@ export default function AmeriAboutPage() {
             </Link>
           </div>
           <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
-            <Image src="https://tse4.mm.bing.net/th/id/OIP.ya1twSObTm4uwuQikYlJMgHaD4?cb=ucfimg2ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3"
+            <Image src="/aboutt.jpeg"
               alt="Fresh ingredients"
               fill
               className="object-cover"
@@ -144,7 +144,7 @@ export default function AmeriAboutPage() {
             </div>
           </div>
           <div className="border-t border-green-700 pt-8">
-            <p className="text-center text-green-200">© 2024 IngredientInsight. Made with 🌿 for healthier choices.</p>
+            <p className="text-center text-green-200">© 2024 Ingrelytics. Made with 🌿 for healthier choices.</p>
           </div>
         </div>
       </section>
