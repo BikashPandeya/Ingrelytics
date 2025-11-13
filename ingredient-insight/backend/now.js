@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 console.log(process.env.GEMINI_API_KEY)
 
-const API_KEY = "AIzaSyBY6s9j09eebkmfa2bYI-_KKW6J-W2R2ng";
+const API_KEY = "...";
 if (!API_KEY) throw new Error("GEMINI_API_KEY environment variable not set.");
 
 const genAI = new GoogleGenAI({ apiKey: API_KEY });
