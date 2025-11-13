@@ -56,7 +56,7 @@ export default function Header() {
                 Home
               </button>
               <button onClick={goTeach} className="text-emerald-100 hover:bg-emerald-700 hover:text-white rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
-                Teach Section
+                Guide
               </button>
               <button onClick={goAbout} className="text-emerald-100 hover:bg-emerald-700 hover:text-white rounded-full px-6 py-2.5 text-base font-medium transition-all duration-200">
                 About Us

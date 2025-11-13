@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+// import Footer from "@/app/components/footer";
 import ImageUpload from '@/app/components/imageUpload'
 
 const HeroSection = ({ onLearn, onScan }: any) => (
-  <section id="hero" className="snap-start h-screen relative bg-[url('/hero-bg.jpg')] bg-cover bg-center">
+  <section  id="hero-section" className="snap-start h-screen relative bg-[url('/hero-bg.jpg')] bg-cover bg-center">
     <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent" />
     <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-6">
       <h1 className="text-5xl sm:text-6xl font-extrabold text-white drop-shadow-lg">
@@ -38,7 +39,7 @@ const StepsCarousel = () => {
     return () => clearInterval(t)
   }, [])
   return (
-    <section id="teach" className="snap-start h-screen flex flex-col justify-center items-center bg-gradient-to-b from-blue-50 to-green-50 p-6">
+    <section id="teach-section" className="snap-start h-screen flex flex-col justify-center items-center bg-gradient-to-b from-blue-50 to-green-50 p-6">
       <h2 className="text-4xl font-bold mb-12 text-gray-900">How It Works</h2>
       <div className="bg-white p-10 rounded-2xl shadow-lg text-center max-w-3xl">
         <div className="text-7xl mb-4">{slides[idx].i}</div>
@@ -104,6 +105,8 @@ const ScanSection = () => {
           )
         })}
       </div>
+      <br />
+      {/* <Footer /> */}
     </section>
   )
 }
@@ -117,9 +120,10 @@ export default function Page() {
   return (
     <div className="bg-gradient-to-b from-green-50 to-white text-gray-900 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
       <HeroSection onLearn={() => scrollTo('teach')} onScan={() => scrollTo('scan')} />
-      <StepsCarousel />
       <WhySection />
+      <StepsCarousel />
       <ScanSection />
+      
     </div>
   )
 }
