@@ -3,15 +3,16 @@
 import React, { useState } from 'react'
 import { createWorker } from 'tesseract.js'
 import { AnalysisReport } from '@/app/lib/types'
+import AnalysisReportComponent from './analysisReport'
+// simple in-file loading / results UI (removed external components)
 
 const ImageUpload: React.FC = () => {
   const [isDragActive, setIsDragActive] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false) // This is for AI analysis
   const [ocrLoading, setOcrLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [report, setReport] = useState<AnalysisReport | null>(null)
   const [ocrText, setOcrText] = useState<string>('')
-  const [showOcr, setShowOcr] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   const handleFile = async (file: File) => {
@@ -24,14 +25,14 @@ const ImageUpload: React.FC = () => {
       setError('Please upload a valid image file.')
       return
     }
-
-    // File uploaded successfully, ready for OCR
   }
 
   const readImageText = async () => {
     if (!selectedImage) return
 
     setOcrLoading(true)
+    setReport(null) // Clear old report
+    setError(null)  // Clear old errors
     try {
       const worker = await createWorker('eng', 1, {
         logger: m => console.log(m),
@@ -41,13 +42,55 @@ const ImageUpload: React.FC = () => {
         data: { text },
       } = await worker.recognize(selectedImage)
 
-      setOcrText(text)
+      const cleaned = text.trim()
+      setOcrText(cleaned)
+      // automatically analyze the extracted text
+      await handleAnalyze(cleaned)
       await worker.terminate()
     } catch (err: any) {
       setError('Error occurred during OCR processing.')
       console.error(err)
     } finally {
       setOcrLoading(false)
+    }
+  }
+
+  // --- NEW FUNCTION ---
+  // This sends the extracted text to our backend API. If `textParam` is provided
+  // it will be used (so we can call this immediately after OCR), otherwise the
+  // current `ocrText` state will be sent (used by the button).
+  const handleAnalyze = async (textParam?: string) => {
+  const textToSend = ((textParam ?? ocrText) || '').toString()
+    if (!textToSend.trim()) {
+      setError('Please extract text from the image first.')
+      return
+    }
+
+    setLoading(true)
+    setReport(null)
+    setError(null)
+
+    try {
+      const res = await fetch('http://localhost:5000/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: textToSend }), // Send the extracted text
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Analysis failed')
+      }
+
+      const data: AnalysisReport = await res.json()
+      setReport(data)
+
+    } catch (e: any) {
+      setError(e.message || 'An unexpected error occurred.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -77,6 +120,15 @@ const ImageUpload: React.FC = () => {
     if (files && files[0]) {
       handleFile(files[0])
     }
+  }
+  
+  const resetAll = () => {
+    setSelectedImage(null)
+    setOcrText('')
+    setError(null)
+    setReport(null)
+    setLoading(false)
+    setOcrLoading(false)
   }
 
   return (
@@ -113,7 +165,7 @@ const ImageUpload: React.FC = () => {
             <p className="mb-2 text-sm text-black dark:text-black">
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
-            <p className="text-xs text-black dark:text-black">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+            <p className="text-xs text-black dark:text-black">PNG or JPG recommended</p>
           </div>
           <input
             id="dropzone-file"
@@ -130,10 +182,7 @@ const ImageUpload: React.FC = () => {
           <p className="text-red-700 font-medium">Error</p>
           <p className="text-red-600 text-sm">{error}</p>
           <button
-            onClick={() => {
-              setError(null)
-              setSelectedImage(null)
-            }}
+            onClick={resetAll}
             className="mt-2 text-sm text-red-700 underline hover:text-red-800"
           >
             Try again
@@ -154,35 +203,67 @@ const ImageUpload: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={readImageText}
-                disabled={ocrLoading}
+                disabled={ocrLoading || loading}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
               >
                 {ocrLoading ? 'Reading Text...' : '🔍 Extract Text (OCR)'}
               </button>
               <button
-                onClick={() => {
-                  setSelectedImage(null)
-                  setOcrText('')
-                  setError(null)
-                }}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                onClick={resetAll}
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
               >
-                Upload Different Image
+                Start Over
               </button>
             </div>
 
             {ocrText && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 rounded-lg">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 rounded-lg animate-fadeIn">
                 <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">✅ Extracted Text</h3>
                 <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap">{ocrText}</p>
+                
+                {/* --- NEW BUTTON --- */}
+        <button
+          onClick={() => handleAnalyze()}
+          disabled={loading || ocrLoading}
+          className="w-full px-4 py-3 mt-4 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors font-semibold text-lg"
+        >
+          🧪 Analyze Extracted Text
+        </button>
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* --- NEW DISPLAY SECTION --- */}
+      {loading && (
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg animate-fadeIn">
+          <p className="text-yellow-700 font-medium flex items-center gap-2">
+            <span className="animate-spin">⚙️</span> Analyzing extracted text...
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-6 p-4 bg-red-50 border-2 border-red-300 rounded-lg animate-fadeIn">
+          <p className="text-red-700 font-semibold mb-3">❌ Error</p>
+          <p className="text-red-600 text-sm mb-4">{error}</p>
+          <button
+            onClick={resetAll}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
+      {report && (
+        <AnalysisReportComponent report={report} onReset={resetAll} />
+      )}
+
     </div>
   )
 }
 
 export default ImageUpload
-

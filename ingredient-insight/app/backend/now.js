@@ -34,9 +34,9 @@ app.post("/analyze", async (req, res) => {
     }
 
     const prompt = `
-You are "IngredientInsight," an AI health and safety expert.
+You are "IngredientInsight," an AI health and safety expert and food scientist.
 
-Analyze this ingredient list:
+Analyze this ingredient list carefully:
 {
 ${text}
 }
@@ -45,7 +45,7 @@ Return a single valid JSON object in this structure only:
 
 {
   "transcribedText": string,
-  "safetyScore": number,
+  "safetyScore": number, // 0 to 10 scale only
   "summary": string,
   "harmfulIngredients": [
     { "name": string, "risk": "High"|"Moderate"|"Low"|"Unknown", "description": string }
@@ -53,8 +53,19 @@ Return a single valid JSON object in this structure only:
   "healthierAlternatives": string[]
 }
 
-No extra explanations, markdown, or text. Just JSON.
+--- IMPORTANT RULES ---
+1. The "safetyScore" must be between 0 and 10, not 100.
+2. Base the score on real-world food safety and nutrition knowledge:
+   - 9–10 → very healthy and natural (e.g., fresh fruits, oats, vegetables)
+   - 7–8 → mostly safe, minimal additives
+   - 5–6 → moderate health concerns (e.g., processed snacks)
+   - 3–4 → unhealthy or high in sugar/fat/salt/artificial additives
+   - 0–2 → harmful or extremely unhealthy (e.g., sugary sodas, junk food)
+3. Do NOT be overly positive — be critical and honest about health effects.
+4. If uncertain, estimate conservatively (err on the side of lower safety).
+5. Output ONLY a valid JSON object — no explanations, markdown, or text.
 `;
+
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.0-flash",
