@@ -6,7 +6,7 @@ export interface HarmfulIngredient {
 
 export interface AnalysisReport {
   transcribedText: string;
-  safetyScore: number; 
+  safetyScore: number;
   summary: string;
   harmfulIngredients: HarmfulIngredient[];
   healthierAlternatives: string[];
