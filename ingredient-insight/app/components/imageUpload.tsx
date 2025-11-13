@@ -4,11 +4,10 @@ import React, { useState } from 'react'
 import { createWorker } from 'tesseract.js'
 import { AnalysisReport } from '@/app/lib/types'
 import AnalysisReportComponent from './analysisReport'
-// simple in-file loading / results UI (removed external components)
 
 const ImageUpload: React.FC = () => {
   const [isDragActive, setIsDragActive] = useState(false)
-  const [loading, setLoading] = useState(false) // This is for AI analysis
+  const [loading, setLoading] = useState(false)
   const [ocrLoading, setOcrLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [report, setReport] = useState<AnalysisReport | null>(null)
@@ -29,22 +28,16 @@ const ImageUpload: React.FC = () => {
 
   const readImageText = async () => {
     if (!selectedImage) return
-
     setOcrLoading(true)
-    setReport(null) // Clear old report
-    setError(null)  // Clear old errors
+    setReport(null)
+    setError(null)
     try {
       const worker = await createWorker('eng', 1, {
         logger: m => console.log(m),
       })
-
-      const {
-        data: { text },
-      } = await worker.recognize(selectedImage)
-
+      const { data: { text } } = await worker.recognize(selectedImage)
       const cleaned = text.trim()
       setOcrText(cleaned)
-      // automatically analyze the extracted text
       await handleAnalyze(cleaned)
       await worker.terminate()
     } catch (err: any) {
@@ -55,12 +48,8 @@ const ImageUpload: React.FC = () => {
     }
   }
 
-  // --- NEW FUNCTION ---
-  // This sends the extracted text to our backend API. If `textParam` is provided
-  // it will be used (so we can call this immediately after OCR), otherwise the
-  // current `ocrText` state will be sent (used by the button).
   const handleAnalyze = async (textParam?: string) => {
-  const textToSend = ((textParam ?? ocrText) || '').toString()
+    const textToSend = ((textParam ?? ocrText) || '').toString()
     if (!textToSend.trim()) {
       setError('Please extract text from the image first.')
       return
@@ -76,7 +65,7 @@ const ImageUpload: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: textToSend }), // Send the extracted text
+        body: JSON.stringify({ text: textToSend }),
       })
 
       if (!res.ok) {
@@ -86,7 +75,6 @@ const ImageUpload: React.FC = () => {
 
       const data: AnalysisReport = await res.json()
       setReport(data)
-
     } catch (e: any) {
       setError(e.message || 'An unexpected error occurred.')
     } finally {
@@ -108,7 +96,6 @@ const ImageUpload: React.FC = () => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragActive(false)
-
     const files = e.dataTransfer.files
     if (files && files[0]) {
       handleFile(files[0])
@@ -221,22 +208,19 @@ const ImageUpload: React.FC = () => {
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 rounded-lg animate-fadeIn">
                 <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">✅ Extracted Text</h3>
                 <p className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap">{ocrText}</p>
-                
-                {/* --- NEW BUTTON --- */}
-        <button
-          onClick={() => handleAnalyze()}
-          disabled={loading || ocrLoading}
-          className="w-full px-4 py-3 mt-4 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors font-semibold text-lg"
-        >
-          🧪 Analyze Extracted Text
-        </button>
+                <button
+                  onClick={() => handleAnalyze()}
+                  disabled={loading || ocrLoading}
+                  className="w-full px-4 py-3 mt-4 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors font-semibold text-lg"
+                >
+                  🧪 Analyze Extracted Text
+                </button>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* --- NEW DISPLAY SECTION --- */}
       {loading && (
         <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg animate-fadeIn">
           <p className="text-yellow-700 font-medium flex items-center gap-2">
@@ -261,7 +245,6 @@ const ImageUpload: React.FC = () => {
       {report && (
         <AnalysisReportComponent report={report} onReset={resetAll} />
       )}
-
     </div>
   )
 }
